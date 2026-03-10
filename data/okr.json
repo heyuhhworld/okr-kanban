@@ -9,11 +9,19 @@
         "kr": "KR1",
         "valueOptions": [
           "核心供应商产品数据直连新增+50%",
-          "产品链路AI参与率≥50%"
+          "产品链路AI参与率≥50%",
+          "新产品策略AI参与率≥50%",
+          "尽调效率提升30%，覆盖率≥80%",
+          "投委评审AI建议采纳率≥60%",
+          "营销物料AI生成率≥70%",
+          "营销转化率提升20%+",
+          "线上认购占比≥60%",
+          "产品上架效率+100%",
+          "月均20+ fast track产品覆盖"
         ],
         "subTasks": [
           {
-            "id": "sub_1773107668587_1",
+            "id": "sub_1773129471634_1",
             "name": "供应商数据直连",
             "value": "核心供应商产品数据直连新增+50%",
             "valueRemark": "",
@@ -28,7 +36,7 @@
             "status": "进行中"
           },
           {
-            "id": "sub_1773107668587_2",
+            "id": "sub_1773129471634_2",
             "name": "产品尽调/立项材料准备AI化- FastTrack",
             "value": "产品链路AI参与率≥50%",
             "valueRemark": "",
@@ -40,7 +48,7 @@
             "status": "已完成"
           },
           {
-            "id": "sub_1773107668587_3",
+            "id": "sub_1773129471634_3",
             "name": "产品尽调/立项材料准备AI化- 信贷/基建/股权",
             "value": "产品链路AI参与率≥50%",
             "valueRemark": "",
@@ -53,7 +61,7 @@
             "status": "进行中"
           },
           {
-            "id": "sub_1773107668587_4",
+            "id": "sub_1773129471634_4",
             "name": "产品材料审核-风控、合规 - FastTrack、常规项目",
             "value": "产品链路AI参与率≥50%",
             "valueRemark": "",
@@ -65,7 +73,7 @@
             "status": "进行中"
           },
           {
-            "id": "sub_1773107668587_5",
+            "id": "sub_1773129471634_5",
             "name": "上线材料制作AI化 - 投资指南：半流动性",
             "value": "产品链路AI参与率≥50%",
             "valueRemark": "",
@@ -77,7 +85,7 @@
             "status": "待办"
           },
           {
-            "id": "sub_1773107668587_6",
+            "id": "sub_1773129471634_6",
             "name": "产品筛选AI化 - 私募类资讯分析",
             "value": "产品链路AI参与率≥50%",
             "valueRemark": "",
@@ -90,13 +98,80 @@
             "status": "待办"
           },
           {
-            "id": "sub_1773112825370",
-            "name": "新子任务",
-            "value": "核心供应商产品数据直连新增+50%",
+            "id": "sub_1773129471634_19",
+            "name": "产品策略研究AI化",
+            "value": "新产品策略AI参与率≥50%",
             "valueRemark": "",
             "remark": "",
             "person": "待分配",
-            "quarters": [],
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_20",
+            "name": "完整尽调流程AI化",
+            "value": "尽调效率提升30%，覆盖率≥80%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_21",
+            "name": "投委评审建议AI化",
+            "value": "投委评审AI建议采纳率≥60%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_22",
+            "name": "营销内容生成AI化",
+            "value": "营销物料AI生成率≥70%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_23",
+            "name": "营销分发AI化优化",
+            "value": "营销转化率提升20%+",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q3",
+              "Q4"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_24",
+            "name": "客户认购流程AI化",
+            "value": "线上认购占比≥60%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
             "status": "待办"
           }
         ]
@@ -106,11 +181,15 @@
         "name": "增长链路AI化嵌入",
         "kr": "KR2",
         "valueOptions": [
-          "下单客户数，复购率，客单价稳步提升"
+          "下单客户数，复购率，客单价稳步提升",
+          "客户分层准确度≥85%",
+          "推荐点击率提升30%+",
+          "流失预警准确度≥80%",
+          "失眠激活AIRM从线性到指数级提升AUM增长目标"
         ],
         "subTasks": [
           {
-            "id": "sub_1773107668587_7",
+            "id": "sub_1773129471634_7",
             "name": "KYC及配置建议AI化",
             "value": "下单客户数，复购率，客单价稳步提升",
             "valueRemark": "",
@@ -118,6 +197,43 @@
             "person": "李四",
             "quarters": [
               "Q2"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_25",
+            "name": "客户风险偏好AI识别",
+            "value": "客户分层准确度≥85%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q2"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_26",
+            "name": "个性化产品推荐AI化",
+            "value": "推荐点击率提升30%+",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_27",
+            "name": "客户流失预警AI化",
+            "value": "流失预警准确度≥80%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q3"
             ],
             "status": "待办"
           }
@@ -128,11 +244,18 @@
         "name": "运作及合规链路AI嵌入",
         "kr": "KR3",
         "valueOptions": [
-          "跨区产品/投委/资源决策100% AI摘要留痕"
+          "跨区产品/投委/资源决策100% AI摘要留痕",
+          "月度报告AI生成占比≥80%",
+          "投资组合业绩分析AI覆盖率100%",
+          "标的异常识别率≥90%",
+          "合规检查自动化率≥70%",
+          "投后管理效率提升25%+",
+          "无留痕=无效",
+          "审计可回放"
         ],
         "subTasks": [
           {
-            "id": "sub_1773107668587_8",
+            "id": "sub_1773129471634_8",
             "name": "决策100% AI摘要留痕",
             "value": "跨区产品/投委/资源决策100% AI摘要留痕",
             "valueRemark": "",
@@ -144,7 +267,7 @@
             "status": "待办"
           },
           {
-            "id": "sub_1773107668587_9",
+            "id": "sub_1773129471634_9",
             "name": "投管 拆解",
             "value": "跨区产品/投委/资源决策100% AI摘要留痕",
             "valueRemark": "",
@@ -154,13 +277,67 @@
             "status": "待办"
           },
           {
-            "id": "sub_1773114999628",
-            "name": "新子任务",
-            "value": "跨区产品/投委/资源决策100% AI摘要留痕",
+            "id": "sub_1773129471634_28",
+            "name": "定期报告生成AI化",
+            "value": "月度报告AI生成占比≥80%",
             "valueRemark": "",
             "remark": "",
             "person": "待分配",
-            "quarters": [],
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_29",
+            "name": "业绩分析AI化",
+            "value": "投资组合业绩分析AI覆盖率100%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q2"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_30",
+            "name": "标的监控AI化",
+            "value": "标的异常识别率≥90%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_31",
+            "name": "风险合规AI检查",
+            "value": "合规检查自动化率≥70%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q3",
+              "Q4"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_32",
+            "name": "投后价值创造AI支持",
+            "value": "投后管理效率提升25%+",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q3",
+              "Q4"
+            ],
             "status": "待办"
           }
         ]
@@ -176,31 +353,49 @@
         "name": "各项专家能力AI化",
         "kr": "KR1",
         "valueOptions": [
-          "Olive产品专家AI Agent上线"
+          "Olive产品专家AI Agent上线",
+          "Olive产品营销专家AI Agent上线",
+          "更多的客户可以通过Olive的专家AI Agent享受到专业及有品质的服务"
         ],
         "subTasks": [
           {
-            "id": "sub_1773107668587_10",
+            "id": "sub_1773129471634_10",
             "name": "产品Agent-货架产品问答（产品信息/业绩/Terms）",
             "value": "Olive产品专家AI Agent上线",
             "valueRemark": "",
             "remark": "",
             "person": "红花、嘉琦",
-            "quarters": [],
+            "quarters": [
+              "Q1"
+            ],
             "status": "进行中"
           },
           {
-            "id": "sub_1773107668587_12",
+            "id": "sub_1773129471634_11",
+            "name": "产品Agent-一产品与客群匹配",
+            "value": "Olive产品专家AI Agent上线",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q2"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_12",
             "name": "产品Agent - 产品策略配置/投教",
             "value": "Olive产品专家AI Agent上线",
             "valueRemark": "",
             "remark": "",
             "person": "红花、嘉琦",
-            "quarters": [],
+            "quarters": [
+              "Q3"
+            ],
             "status": "待办"
           },
           {
-            "id": "sub_1773107668587_13",
+            "id": "sub_1773129471634_13",
             "name": "产品Agent - 一级存续监控（PPM变更、业绩异常、市场环境）",
             "value": "Olive产品专家AI Agent上线",
             "valueRemark": "",
@@ -213,29 +408,30 @@
             "status": "待办"
           },
           {
-            "id": "sub_1773107668587_14",
+            "id": "sub_1773129471634_14",
             "name": "产品Agent - 二级存续监控 （PPM变更、业绩异常、市场环境）",
             "value": "Olive产品专家AI Agent上线",
             "valueRemark": "",
             "remark": "",
             "person": "小倩",
-            "quarters": [],
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
             "status": "待办"
           },
           {
-            "id": "sub_1773123591329",
+            "id": "sub_1773129471634_15",
             "name": "产品Agent-国内一级存续解答（理财师一页纸+智能问答）",
             "value": "Olive产品专家AI Agent上线",
-            "valueRemark": "歌斐存续助手AI Agent上线",
+            "valueRemark": "",
             "remark": "",
             "person": "仲明",
-            "quarters": [
-              "Q1"
-            ],
+            "quarters": [],
             "status": "进行中"
           },
           {
-            "id": "sub_1773123797368",
+            "id": "sub_1773129471634_16",
             "name": "产品Agent-海外一级存续解答",
             "value": "Olive产品专家AI Agent上线",
             "valueRemark": "",
@@ -251,31 +447,22 @@
         "name": "统一语言输出",
         "kr": "KR2",
         "valueOptions": [
-          "对客户、对内部、对管理层的产品/配置/风险表述以AI输出为统一底稿"
+          "对客户、对内部、对管理层的产品/配置/风险表述以AI输出为统一底稿",
+          "客户、RM、产品、风控，管理层在同一套逻辑下运作及决策"
         ],
-        "subTasks": [
-          {
-            "id": "sub_1773107668587_15",
-            "name": "新子任务",
-            "value": "对客户、对内部、对管理层的产品/配置/风险表述以AI输出为统一底稿",
-            "valueRemark": "",
-            "remark": "",
-            "person": "待分配",
-            "quarters": [],
-            "status": "待办"
-          }
-        ]
+        "subTasks": []
       },
       {
         "id": "t2_3",
         "name": "AI化专家能力平台化输出",
         "kr": "KR3",
         "valueOptions": [
-          "赋能渠道侧(线上财管/Nexus等),Olive海投产品货架及产品询价(供应商直连）能力全面对接渠道"
+          "赋能渠道侧(线上财管/Nexus等),Olive海投产品货架及产品询价(供应商直连）能力全面对接渠道",
+          "AI化专家能力对接渠道,助力渠道侧在AI化导购模式下的下单量逐步提升"
         ],
         "subTasks": [
           {
-            "id": "sub_1773107668587_16",
+            "id": "sub_1773129471634_18",
             "name": "产品Agent-平台化对接",
             "value": "赋能渠道侧(线上财管/Nexus等),Olive海投产品货架及产品询价(供应商直连）能力全面对接渠道",
             "valueRemark": "",
@@ -293,20 +480,21 @@
     ]
   },
   {
-    "id": "o3",
+    "id": "o4",
     "title": "O3: AI 重构人效结构",
     "tasks": [
       {
-        "id": "t3_1",
+        "id": "t4_1",
         "name": "AI成为“默认执行者”",
         "kr": "KR1",
         "valueOptions": [
           "把重复劳动交给AI默认执行，人工只处理例外",
-          "同时用人效指标证明“AI独立贡献”"
+          "产品管理，运营及存续管理系统上线",
+          "产品供应商/FA系统化数据对接达到50%以上"
         ],
         "subTasks": [
           {
-            "id": "sub_1773128702733",
+            "id": "sub_1773129471634_38",
             "name": "新子任务",
             "value": "把重复劳动交给AI默认执行，人工只处理例外",
             "valueRemark": "",
@@ -318,32 +506,6 @@
         ]
       },
       {
-        "id": "t3_2",
-        "name": "人效及专业服务质量提升可量化",
-        "kr": "KR2",
-        "valueOptions": [
-          "重复性工作执行效能平均提升100%+",
-          "保持重大操作风险为0"
-        ],
-        "subTasks": []
-      }
-    ]
-  },
-  {
-    "id": "o4",
-    "title": "O4: Olive 海外新业务端到端数字化能力建设",
-    "tasks": [
-      {
-        "id": "t4_1",
-        "name": "美国OPM业务系统化率提升",
-        "kr": "KR1",
-        "valueOptions": [
-          "产品管理，运营及存续管理系统上线",
-          "产品供应商/FA系统化数据对接达到50%以上"
-        ],
-        "subTasks": []
-      },
-      {
         "id": "t4_2",
         "name": "全委/主题ETF/EAM/FCN(新策略)系统化率提升",
         "kr": "KR2",
@@ -351,6 +513,42 @@
           "全委及其涉及的投资模式和产品的系统化率达到90%以上，支撑业务达成增长API目标"
         ],
         "subTasks": []
+      }
+    ]
+  },
+  {
+    "id": "o5",
+    "title": "O4: Olive 海外新业务端到端数字化能力建设",
+    "tasks": [
+      {
+        "id": "t5_1",
+        "name": "美国OPM业务系统化率提升",
+        "kr": "KR1",
+        "valueOptions": [
+          "产品管理，运营及存续管理系统上线"
+        ],
+        "subTasks": [
+          {
+            "id": "sub_1773129471634_39",
+            "name": "OPM业务数据系统化管理",
+            "value": "产品管理，运营及存续管理系统上线",
+            "valueRemark": "",
+            "remark": "业务前提：集团数据统筹管理制度",
+            "person": "待分配",
+            "quarters": [],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773129471634_40",
+            "name": "OPM新业务支持（BD，结构化，全委等）",
+            "value": "产品管理，运营及存续管理系统上线",
+            "valueRemark": "",
+            "remark": "业务前提：新业务类型的拓展 Olive支持代销等新业务的支持",
+            "person": "待分配",
+            "quarters": [],
+            "status": "待办"
+          }
+        ]
       }
     ]
   },
