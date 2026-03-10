@@ -152,6 +152,16 @@
             "person": "思敏",
             "quarters": [],
             "status": "待办"
+          },
+          {
+            "id": "sub_1773114999628",
+            "name": "新子任务",
+            "value": "跨区产品/投委/资源决策100% AI摘要留痕",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [],
+            "status": "待办"
           }
         ]
       }
@@ -176,9 +186,7 @@
             "valueRemark": "",
             "remark": "",
             "person": "红花、嘉琦",
-            "quarters": [
-              "Q1"
-            ],
+            "quarters": [],
             "status": "进行中"
           },
           {
@@ -188,9 +196,7 @@
             "valueRemark": "",
             "remark": "",
             "person": "红花、嘉琦",
-            "quarters": [
-              "Q3"
-            ],
+            "quarters": [],
             "status": "待办"
           },
           {
@@ -214,8 +220,7 @@
             "remark": "",
             "person": "小倩",
             "quarters": [
-              "Q2",
-              "Q3"
+              "Q2"
             ],
             "status": "待办"
           }

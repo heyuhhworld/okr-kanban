@@ -94,11 +94,17 @@
                     { id: 't3_2', name: '人效及专业服务质量提升可量化', kr: 'KR2', valueOptions: ['重复性工作执行效能平均提升100%+', '保持重大操作风险为0'], subTasks: [] }
                 ]
             },
-             {
+            {
                 id: 'o4', title: 'O4: Olive 海外新业务端到端数字化能力建设',
                 tasks: [
                     { id: 't4_1', name: '美国OPM业务系统化率提升', kr: 'KR1', valueOptions: ['产品管理，运营及存续管理系统上线', '产品供应商/FA系统化数据对接达到50%以上'], subTasks: [] },
                     { id: 't4_2', name: '全委/主题ETF/EAM/FCN(新策略)系统化率提升', kr: 'KR2', valueOptions: ['全委及其涉及的投资模式和产品的系统化率达到90%以上，支撑业务达成增长API目标'], subTasks: [] }
+                ]
+            },
+            {
+                id: 'p1', title: '常规项目',
+                tasks: [
+                    { id: 'p1_1', name: '常规项目', kr: 'P1', valueOptions: ['待补充'], subTasks: [] }
                 ]
             }
         ];
@@ -118,6 +124,16 @@
             render();
         }
         function render() { const data = loadData(); renderTable(data); renderGantt(data); updatePersonFilter(data); }
+
+        function mergeWithInitial(data) {
+            const list = Array.isArray(data) ? data.slice() : [];
+            initialData.forEach(obj => {
+                if (!list.find(o => (o.id && o.id === obj.id) || o.title === obj.title)) {
+                    list.push(obj);
+                }
+            });
+            return list;
+        }
 
         function startApp() {
             initialLoadDone = true;
@@ -147,7 +163,9 @@
                 refreshBtn.style.display = 'inline-block';
                 refreshBtn.onclick = () => {
                     fetch('/api/data').then(r => r.json()).then(d => {
-                        if (Array.isArray(d) && d.length > 0) cachedData = d;
+                        const merged = mergeWithInitial(d);
+                        cachedData = merged;
+                        localStorage.setItem(storageKey, JSON.stringify(merged));
                         render();
                     }).catch(() => alert('刷新失败'));
                 };
@@ -179,7 +197,6 @@
                         const matchStatus = tableStatusFilter === 'all' || sub.status === tableStatusFilter;
                         return matchPerson && matchStatus;
                     });
-                    if (visibleSubTasks.length === 0) return;
                     const groupHeader = tbody.insertRow();
                     groupHeader.className = 'task-group-header';
                     groupHeader.innerHTML = `
@@ -528,8 +545,12 @@
 
         if (useServer) {
             fetch('/api/data').then(r => r.json()).then(d => {
-                cachedData = (Array.isArray(d) && d.length > 0) ? d : null;
-            }).catch(() => {}).finally(startApp);
+                const merged = mergeWithInitial(d && d.length ? d : initialData);
+                cachedData = merged;
+                localStorage.setItem(storageKey, JSON.stringify(merged));
+            }).catch(() => {
+                cachedData = mergeWithInitial(initialData);
+            }).finally(startApp);
         } else {
             startApp();
         }
