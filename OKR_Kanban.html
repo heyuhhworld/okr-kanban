@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OKR 高级项目管理 Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f4f5f7; margin: 20px; }
+        .container { max-width: 95%; margin: 20px auto; background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1, h2 { color: #172b4d; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+        h1 { text-align: center; font-size: 2em; }
+        h2 { font-size: 1.5em; margin-top: 40px; display: flex; justify-content: space-between; align-items: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th, td { border: 1px solid #dfe1e6; padding: 8px; text-align: left; vertical-align: middle; }
+        th { background-color: #fafbfc; font-weight: 600; color: #5e6c84; }
+        .task-group-header { background-color: #f0f2f5; font-weight: bold; }
+        .btn { cursor: pointer; padding: 6px 12px; border: none; border-radius: 3px; color: white; margin: 0 3px; font-size: 12px; }
+        .btn-edit { background-color: #3498db; }
+        .btn-edit:hover { background-color: #2c81ba; }
+        .btn-add-subtask { background-color: #17a2b8; }
+        [contenteditable="true"] { background-color: #fffbe6; outline: 2px solid #ffc107; }
+        select[multiple] { height: 80px; }
+        #gantt-container { margin-top: 40px; }
+        .summary-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .summary-cards { display: flex; gap: 16px; flex-wrap: wrap; }
+        .summary-card { min-width: 150px; padding: 12px 16px; border-radius: 8px; background: #f8fafc; box-shadow: 0 2px 4px rgba(15,23,42,0.06); }
+        .summary-card-title { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+        .summary-card-value { font-size: 20px; font-weight: 600; color: #111827; }
+        .btn-export { background-color: #4e73df; }
+        .btn-export:hover { background-color: #2e59d9; }
+        .table-filters { margin: 8px 0 4px; display: flex; gap: 16px; align-items: center; font-size: 13px; color: #6b7280; }
+        .table-filters label { margin-right: 4px; }
+        .table-filters select { padding: 4px 8px; border-radius: 4px; border: 1px solid #d1d5db; background: #fff; color: #111827; }
+        .value-remark { margin-top: 4px; font-size: 12px; color: #4b5563; min-height: 18px; }
+        /* Gantt Status Colors */
+        .gantt .bar-wrapper.status-todo .bar { fill: #b8c2cc; } /* 灰色 for 待办 */
+        .gantt .bar-wrapper.status-inprogress .bar { fill: #5bc0de; } /* 蓝色 for 进行中 */
+        .gantt .bar-wrapper.status-done .bar { fill: #5cb85c; } /* 绿色 for 已完成 */
+        .gantt .bar-label { font-size: 12px; fill: #fff; font-weight: 500; }
+        .gantt .bar-wrapper.is-summary .bar, .gantt .bar-wrapper.is-summary .bar-progress { fill: #aeb8c2; }
+        .gantt .bar-wrapper.is-summary .bar-label { fill: #fff; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="dashboard-container" class="container"></div>
+    <div id="gantt-container" class="container">
+        <h2>甘特图视图</h2>
+        <div id="gantt-filter"><label for="person-filter">按跟进人筛选:</label><select id="person-filter"></select></div>
+        <svg id="gantt"></svg>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const storageKey = 'okrDashboardData_v5';
+        let gantt;
+        let tablePersonFilter = 'all';
+        let tableStatusFilter = 'all';
+        /** 服务端模式：通过 http(s) 打开时与服务器同步，所有人看到同一份数据 */
+        const useServer = (window.location.protocol === 'http:' || window.location.protocol === 'https:');
+        let cachedData = null;
+        let initialLoadDone = false;
+
+        const initialData = [
+            {
+                id: 'o1', title: 'O1: AI 成为 Olive 各核心经营链路的默认操作系统',
+                tasks: [
+                    { id: 't1_1', name: '产品链路AI化嵌入', kr: 'KR1', valueOptions: ['核心供应商产品数据直连新增+50%', '产品链路AI参与率≥50%', '产品上架效率+100%', '月均20+ fast track产品覆盖'], subTasks: [
+                        { id: 'st1_1_1', name: '供应商数据直连', value: '核心供应商产品数据直连新增+50%', valueRemark: '', remark: '完成API开发', person: '张三', quarters: ['Q1'], status: '进行中' }]
+                    },
+                    { id: 't1_2', name: '增长链路AI化嵌入', kr: 'KR2', valueOptions: ['下单客户数，复购率，客单价稳步提升', '失眠激活AIRM从线性到指数级提升AUM增长目标'], subTasks: [
+                        { id: 'st1_2_1', name: 'KYC及配置建议AI化', value: '下单客户数，复购率，客单价稳步提升', valueRemark: '', remark: '', person: '李四', quarters: ['Q2'], status: '待办' }]
+                    },
+                    { id: 't1_3', name: '运作及合规链路AI嵌入', kr: 'KR3', valueOptions: ['跨区产品/投委/资源决策100% AI摘要留痕', '无留痕=无效', '审计可回放'], subTasks: [
+                        { id: 'st1_3_1', name: '决策100% AI摘要留痕', value: '跨区产品/投委/资源决策100% AI摘要留痕', valueRemark: '', remark: '', person: '王五', quarters: ['Q2'], status: '已完成' }]
+                    }
+                ]
+            },
+            {
+                id: 'o2', title: 'O2: AI 作为组织“统一专业大脑”',
+                tasks: [
+                    { id: 't2_1', name: '各项专家能力AI化', kr: 'KR1', valueOptions: ['Olive产品专家AI Agent上线', 'Olive产品营销专家AI Agent上线', '更多的客户可以通过Olive的专家AI Agent享受到专业及有品质的服务'], subTasks: [
+                        { id: 'st2_1_1', name: '产品专家AI Agent上线', value: 'Olive产品专家AI Agent上线', valueRemark: '', remark: '', person: '赵六', quarters: ['Q3'], status: '待办' }]
+                    },
+                    { id: 't2_2', name: '统一语言输出', kr: 'KR2', valueOptions: ['对客户、对内部、对管理层的产品/配置/风险表述以AI输出为统一底稿', '客户、RM、产品、风控，管理层在同一套逻辑下运作及决策'], subTasks: [] },
+                    { id: 't2_3', name: 'AI化专家能力平台化输出', kr: 'KR3', valueOptions: ['赋能渠道侧(线上财管/Nexus等),Olive海投产品货架及产品询价(供应商直连）能力全面对接渠道', 'AI化专家能力对接渠道,助力渠道侧在AI化导购模式下的下单量逐步提升'], subTasks: [] }
+                ]
+            },
+            {
+                id: 'o3', title: 'O3: AI 重构人效结构',
+                tasks: [
+                    { id: 't3_1', name: 'AI成为“默认执行者”', kr: 'KR1', valueOptions: ['把重复劳动交给AI默认执行，人工只处理例外', '同时用人效指标证明“AI独立贡献”'], subTasks: [] },
+                    { id: 't3_2', name: '人效及专业服务质量提升可量化', kr: 'KR2', valueOptions: ['重复性工作执行效能平均提升100%+', '保持重大操作风险为0'], subTasks: [] }
+                ]
+            },
+             {
+                id: 'o4', title: 'O4: Olive 海外新业务端到端数字化能力建设',
+                tasks: [
+                    { id: 't4_1', name: '美国OPM业务系统化率提升', kr: 'KR1', valueOptions: ['产品管理，运营及存续管理系统上线', '产品供应商/FA系统化数据对接达到50%以上'], subTasks: [] },
+                    { id: 't4_2', name: '全委/主题ETF/EAM/FCN(新策略)系统化率提升', kr: 'KR2', valueOptions: ['全委及其涉及的投资模式和产品的系统化率达到90%以上，支撑业务达成增长API目标'], subTasks: [] }
+                ]
+            }
+        ];
+
+        function loadData() {
+            if (cachedData !== null && cachedData !== undefined) return cachedData;
+            if (!initialLoadDone && useServer) return initialData;
+            return JSON.parse(localStorage.getItem(storageKey)) || initialData;
+        }
+        function saveData(data) {
+            cachedData = data;
+            localStorage.setItem(storageKey, JSON.stringify(data));
+            if (useServer) {
+                fetch('/api/data', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+                    .then(r => r.json()).then(() => {}).catch(() => alert('保存到服务器失败，请重试'));
+            }
+            render();
+        }
+        function render() { const data = loadData(); renderTable(data); renderGantt(data); updatePersonFilter(data); }
+
+        function startApp() {
+            initialLoadDone = true;
+            render();
+        }
+
+        function renderTable(data) {
+            const container = document.getElementById('dashboard-container');
+            container.innerHTML = `
+                <div class="summary-bar">
+                    <div id="summary-cards" class="summary-cards"></div>
+                    <div>
+                        <button id="refresh-btn" class="btn btn-export" style="display:none">从服务器刷新</button>
+                        <button id="import-btn" class="btn btn-export">导入任务清单</button>
+                        <input type="file" id="import-file" accept=".csv" style="display:none">
+                        <button id="export-btn" class="btn btn-export">导出任务清单</button>
+                    </div>
+                </div>
+                <h1>OKR 高级项目管理 Dashboard</h1>
+                <div id="table-filters" class="table-filters"></div>
+            `;
+            renderSummary(data);
+            renderTableFilters(data);
+            document.getElementById('export-btn').onclick = () => exportTasks();
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (useServer) {
+                refreshBtn.style.display = 'inline-block';
+                refreshBtn.onclick = () => {
+                    fetch('/api/data').then(r => r.json()).then(d => {
+                        if (Array.isArray(d) && d.length > 0) cachedData = d;
+                        render();
+                    }).catch(() => alert('刷新失败'));
+                };
+            }
+            const importFile = document.getElementById('import-file');
+            document.getElementById('import-btn').onclick = () => importFile.click();
+            importFile.onchange = function() {
+                const f = importFile.files[0];
+                if (!f) return;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const text = (e.target.result || '').trim();
+                    const data = importFromCSV(text);
+                    if (data) { saveData(data); alert('导入成功，共 ' + countSubTasks(data) + ' 条子任务。'); }
+                    else alert('CSV 格式有误或表头不匹配，请使用本页面导出的 CSV 格式。');
+                    importFile.value = '';
+                };
+                reader.readAsText(f, 'UTF-8');
+            };
+            data.forEach(obj => {
+                const objDiv = document.createElement('div');
+                objDiv.innerHTML = `<h2>${obj.title}</h2>`;
+                const table = document.createElement('table');
+                table.innerHTML = `<thead><tr><th>总任务 (KR)</th><th>子任务</th><th>交付价值</th><th>备注</th><th>跟进人</th><th>跟进时间</th><th>状态</th><th>操作</th></tr></thead>`;
+                const tbody = document.createElement('tbody');
+                obj.tasks.forEach(task => {
+                    const visibleSubTasks = task.subTasks.filter(sub => {
+                        const matchPerson = tablePersonFilter === 'all' || sub.person === tablePersonFilter;
+                        const matchStatus = tableStatusFilter === 'all' || sub.status === tableStatusFilter;
+                        return matchPerson && matchStatus;
+                    });
+                    if (visibleSubTasks.length === 0) return;
+                    const groupHeader = tbody.insertRow();
+                    groupHeader.className = 'task-group-header';
+                    groupHeader.innerHTML = `
+                        <td colspan="7">${task.name} (${task.kr})</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="editTaskKr('${obj.id}', '${task.id}')">编辑 KR</button>
+                            <button class="btn btn-add-subtask" onclick="addSubTask('${obj.id}', '${task.id}')">+ 子任务</button>
+                        </td>
+                    `;
+                    visibleSubTasks.forEach(sub => {
+                        const row = tbody.insertRow();
+                        row.setAttribute('data-id', sub.id);
+                        row.innerHTML = `<td></td><td>${sub.name}</td><td>${getValueHTML(task.valueOptions, sub.value)}<div class="value-remark">${sub.valueRemark || ''}</div></td><td>${sub.remark}</td><td>${sub.person}</td><td>${getQuartersHTML(sub.quarters)}</td><td>${getStatusHTML(sub.status)}</td>
+                            <td class="actions"><button class="btn btn-edit" onclick="toggleEdit(this)">编辑</button><button class="btn" onclick="deleteSubTask('${obj.id}', '${task.id}', '${sub.id}')">删除</button></td>`;
+                        row.cells[0].style.border = 'none';
+                    });
+                });
+                table.appendChild(tbody);
+                objDiv.appendChild(table);
+                container.appendChild(objDiv);
+            });
+            document.getElementById('person-filter').onchange = () => renderGantt(loadData());
+        }
+
+        function renderSummary(data) {
+            const allSubs = [];
+            data.forEach(obj => obj.tasks.forEach(task => task.subTasks.forEach(sub => allSubs.push(sub))));
+            const totalCount = allSubs.length;
+            const todoCount = allSubs.filter(s => s.status === '待办').length;
+            const inProgressCount = allSubs.filter(s => s.status === '进行中').length;
+            const container = document.getElementById('summary-cards');
+            if (!container) return;
+            container.innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-card-title">总任务数</div>
+                    <div class="summary-card-value">${totalCount}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-title">待规划</div>
+                    <div class="summary-card-value">${todoCount}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-card-title">进行中</div>
+                    <div class="summary-card-value">${inProgressCount}</div>
+                </div>
+            `;
+        }
+
+        function renderTableFilters(data) {
+            const container = document.getElementById('table-filters');
+            if (!container) return;
+            const people = new Set(['all']);
+            data.forEach(o => o.tasks.forEach(t => t.subTasks.forEach(s => people.add(s.person))));
+            const statusOptions = ['all', '待办', '进行中', '已完成'];
+            container.innerHTML = `
+                <div>
+                    <label for="table-person-filter">跟进人:</label>
+                    <select id="table-person-filter">
+                        ${Array.from(people).map(p => `
+                            <option value="${p}" ${p === tablePersonFilter ? 'selected' : ''}>${p === 'all' ? '所有人' : p}</option>
+                        `).join('')}
+                    </select>
+                </div>
+                <div>
+                    <label for="table-status-filter">状态:</label>
+                    <select id="table-status-filter">
+                        ${statusOptions.map(s => `
+                            <option value="${s}" ${s === tableStatusFilter ? 'selected' : ''}>${s === 'all' ? '全部' : s}</option>
+                        `).join('')}
+                    </select>
+                </div>
+            `;
+            const personSelect = document.getElementById('table-person-filter');
+            const statusSelect = document.getElementById('table-status-filter');
+            personSelect.onchange = () => {
+                tablePersonFilter = personSelect.value;
+                render();
+            };
+            statusSelect.onchange = () => {
+                tableStatusFilter = statusSelect.value;
+                render();
+            };
+        }
+
+        function updateDataFromDOM() {
+            let data = loadData();
+            document.querySelectorAll('tbody tr[data-id]').forEach(row => {
+                const subId = row.getAttribute('data-id');
+                for (const obj of data) {
+                    for (const task of obj.tasks) {
+                        const sub = task.subTasks.find(s => s.id === subId);
+                        if (sub) {
+                            sub.name = row.cells[1].innerText;
+                            const valueCell = row.cells[2];
+                            sub.value = valueCell.querySelector('select').value;
+                            const valueRemarkEl = valueCell.querySelector('.value-remark');
+                            sub.valueRemark = valueRemarkEl ? valueRemarkEl.innerText : '';
+                            sub.remark = row.cells[3].innerText;
+                            sub.person = row.cells[4].innerText;
+                            sub.quarters = Array.from(row.cells[5].querySelectorAll('option:checked')).map(opt => opt.value);
+                            sub.status = row.cells[6].querySelector('select').value;
+                            saveData(data);
+                            return;
+                        }
+                    }
+                }
+            });
+        }
+
+        window.toggleEdit = function(button) {
+            const row = button.closest('tr');
+            const isEditing = button.innerText === '保存';
+            [row.cells[1], row.cells[3], row.cells[4]].forEach(c => c.contentEditable = !isEditing);
+            const valueRemarkEl = row.cells[2].querySelector('.value-remark');
+            if (valueRemarkEl) valueRemarkEl.contentEditable = !isEditing;
+            button.innerText = isEditing ? '编辑' : '保存';
+            if (isEditing) updateDataFromDOM(); else row.cells[1].focus();
+        };
+
+        window.addSubTask = function(objId, taskId) {
+            let data = loadData();
+            const task = data.find(o => o.id === objId).tasks.find(t => t.id === taskId);
+            task.subTasks.push({ id: 'sub_' + Date.now(), name: '新子任务', value: task.valueOptions[0], valueRemark: '', remark: '', person: '待分配', quarters: [], status: '待办' });
+            saveData(data);
+        };
+
+        window.editTaskKr = function(objId, taskId) {
+            let data = loadData();
+            const obj = data.find(o => o.id === objId);
+            if (!obj) return;
+            const task = obj.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            const current = task.kr || '';
+            const next = prompt('请输入新的 KR 名称：', current);
+            if (next === null) return;
+            const trimmed = next.trim();
+            if (!trimmed || trimmed === current) return;
+            task.kr = trimmed;
+            saveData(data);
+        };
+
+        window.deleteSubTask = function(objId, taskId, subId) {
+            if (!confirm('确定删除这个子任务吗?')) return;
+            let data = loadData();
+            const task = data.find(o => o.id === objId).tasks.find(t => t.id === taskId);
+            task.subTasks = task.subTasks.filter(s => s.id !== subId);
+            saveData(data);
+        };
+
+        function getQuartersHTML(selected) { return `<select multiple onchange="updateDataFromDOM()">${['Q1','Q2','Q3','Q4'].map(q => `<option value="${q}" ${selected.includes(q) ? 'selected' : ''}>${q}</option>`).join('')}</select>`; }
+        function getStatusHTML(selected) { return `<select onchange="updateDataFromDOM()"><option ${selected === '待办' ? 'selected' : ''}>待办</option><option ${selected === '进行中' ? 'selected' : ''}>进行中</option><option ${selected === '已完成' ? 'selected' : ''}>已完成</option></select>`; }
+        function getValueHTML(options, selected) { return `<select onchange="updateDataFromDOM()">${(options || []).map(v => `<option ${v === selected ? 'selected' : ''}>${v}</option>`).join('')}</select>`; }
+        
+        function renderGantt(data) {
+            const filter = document.getElementById('person-filter').value;
+            let ganttTasks = [];
+            const year = new Date().getFullYear();
+            const quarterDates = { 'Q1': [`${year}-01-01`, `${year}-03-31`], 'Q2': [`${year}-04-01`, `${year}-06-30`], 'Q3': [`${year}-07-01`, `${year}-09-30`], 'Q4': [`${year}-10-01`, `${year}-12-31`] };
+            const statusClasses = { '待办': 'status-todo', '进行中': 'status-inprogress', '已完成': 'status-done' };
+
+            data.forEach(obj => obj.tasks.forEach(task => {
+                const filteredSubTasks = task.subTasks.filter(sub => filter === 'all' || sub.person === filter);
+                if (filteredSubTasks.length === 0) return;
+                ganttTasks.push({ id: task.id, name: task.name, start: `${year}-01-01`, end: `${year}-12-31`, progress: 100, custom_class: 'is-summary' });
+                filteredSubTasks.forEach(sub => {
+                    if (sub.quarters.length > 0) {
+                        const startQ = sub.quarters.sort()[0];
+                        const endQ = sub.quarters.sort().pop();
+                        ganttTasks.push({ 
+                            id: sub.id, 
+                            name: sub.name, 
+                            start: quarterDates[startQ][0], 
+                            end: quarterDates[endQ][1], 
+                            progress: 100, // Set progress to 100 to have a full bar
+                            dependencies: task.id, 
+                            custom_class: statusClasses[sub.status] || 'status-todo'
+                        });
+                    }
+                });
+            }));
+            const ganttElement = document.getElementById('gantt');
+            ganttElement.innerHTML = '';
+            if (ganttTasks.length > 0) {
+                gantt = new Gantt("#gantt", ganttTasks, { view_mode: 'Month', custom_popup_html: task => `<div>${task.name}</div>` });
+            } else { ganttElement.innerHTML = '<p>没有符合筛选条件的任务。</p>'; }
+        }
+
+        function updatePersonFilter(data) {
+            const people = new Set(['all']);
+            data.forEach(o => o.tasks.forEach(t => t.subTasks.forEach(s => people.add(s.person))));
+            const filterSelect = document.getElementById('person-filter');
+            const currentVal = filterSelect.value;
+            filterSelect.innerHTML = '';
+            people.forEach(person => {
+                const option = document.createElement('option');
+                option.value = person;
+                option.textContent = person === 'all' ? '所有人' : person;
+                if(person === currentVal || !currentVal) option.selected = true;
+                filterSelect.appendChild(option);
+            });
+        }
+
+        /** 解析 CSV 文本为二维数组，支持双引号包裹字段及 "" 转义 */
+        function parseCSV(text) {
+            const rows = [];
+            let i = 0;
+            const len = text.length;
+            while (i < len) {
+                const row = [];
+                while (i < len) {
+                    if (text[i] === '"') {
+                        let field = '';
+                        i++;
+                        while (i < len) {
+                            if (text[i] === '"') {
+                                if (text[i + 1] === '"') { field += '"'; i += 2; continue; }
+                                i++;
+                                break;
+                            }
+                            field += text[i++];
+                        }
+                        row.push(field);
+                        if (text[i] === ',') i++;
+                        else if (text[i] === '\r' || text[i] === '\n') break;
+                    } else {
+                        let field = '';
+                        while (i < len && text[i] !== ',' && text[i] !== '\r' && text[i] !== '\n') field += text[i++];
+                        row.push(field.trim());
+                        if (text[i] === ',') i++;
+                        else break;
+                    }
+                }
+                if (row.length) rows.push(row);
+                while (i < len && (text[i] === '\r' || text[i] === '\n')) i++;
+            }
+            return rows;
+        }
+
+        /** 从 CSV 文本重建看板数据。支持表头：目标,KR任务,KR编号,子任务名称,交付价值,[交付价值备注],备注,跟进人,季度,状态 */
+        function importFromCSV(text) {
+            const rows = parseCSV(text);
+            if (rows.length < 2) return null;
+            const header = rows[0].map(h => (h || '').trim());
+            const col = (name) => {
+                const i = header.indexOf(name);
+                return i >= 0 ? i : null;
+            };
+            const idx = { goal: col('目标'), taskName: col('KR任务'), kr: col('KR编号'), subName: col('子任务名称'), value: col('交付价值'), valueRemark: col('交付价值备注'), remark: col('备注'), person: col('跟进人'), quarters: col('季度'), status: col('状态') };
+            if (idx.goal == null || idx.taskName == null || idx.subName == null) return null;
+
+            const objOrder = [];
+            const objByTitle = {};
+            const taskKey = (title, name, kr) => title + '\n' + name + '\n' + (kr || '');
+            const taskByKey = {};
+
+            for (let r = 1; r < rows.length; r++) {
+                const row = rows[r];
+                const goal = (row[idx.goal] || '').trim();
+                const taskName = (row[idx.taskName] || '').trim();
+                const kr = (row[idx.kr] || '').trim();
+                const subName = (row[idx.subName] || '').trim();
+                const value = (row[idx.value] || '').trim();
+                const valueRemark = idx.valueRemark != null ? (row[idx.valueRemark] || '').trim() : '';
+                const remark = (row[idx.remark] || '').trim();
+                const person = (row[idx.person] || '').trim() || '待分配';
+                const qStr = (row[idx.quarters] || '').trim();
+                const quarters = qStr ? qStr.split(/[/,，、\s]+/).map(q => q.trim()).filter(Boolean) : [];
+                const status = (row[idx.status] || '').trim() || '待办';
+                if (!goal || !taskName || !subName) continue;
+
+                let obj = objByTitle[goal];
+                if (!obj) {
+                    obj = { id: 'o' + (objOrder.length + 1), title: goal, tasks: [] };
+                    objByTitle[goal] = obj;
+                    objOrder.push(obj);
+                }
+                const key = taskKey(goal, taskName, kr);
+                let task = taskByKey[key];
+                if (!task) {
+                    const taskNum = obj.tasks.length + 1;
+                    task = { id: obj.id.replace('o', 't') + '_' + taskNum, name: taskName, kr: kr || ('KR' + taskNum), valueOptions: [], subTasks: [] };
+                    taskByKey[key] = task;
+                    obj.tasks.push(task);
+                }
+                if (value && !task.valueOptions.includes(value)) task.valueOptions.push(value);
+                task.subTasks.push({
+                    id: 'sub_' + Date.now() + '_' + r,
+                    name: subName,
+                    value: value || (task.valueOptions[0] || ''),
+                    valueRemark: valueRemark,
+                    remark: remark,
+                    person: person,
+                    quarters: quarters,
+                    status: status
+                });
+            }
+            return objOrder.length ? objOrder : null;
+        }
+
+        function countSubTasks(data) {
+            let n = 0;
+            data.forEach(o => o.tasks.forEach(t => { n += (t.subTasks && t.subTasks.length) || 0; }));
+            return n;
+        }
+
+        window.exportTasks = function() {
+            const data = loadData();
+            const rows = [];
+            rows.push(['目标','KR任务','KR编号','子任务名称','交付价值','交付价值备注','备注','跟进人','季度','状态']);
+            data.forEach(obj => {
+                obj.tasks.forEach(task => {
+                    task.subTasks.forEach(sub => {
+                        rows.push([
+                            obj.title || '',
+                            task.name || '',
+                            task.kr || '',
+                            sub.name || '',
+                            sub.value || '',
+                            (sub.valueRemark || '').replace(/\r?\n/g, ' '),
+                            (sub.remark || '').replace(/\r?\n/g, ' '),
+                            sub.person || '',
+                            (sub.quarters || []).join('/'),
+                            sub.status || ''
+                        ]);
+                    });
+                });
+            });
+            const csvContent = rows.map(row =>
+                row.map(field => {
+                    const value = String(field).replace(/"/g, '""');
+                    return `"${value}"`;
+                }).join(',')
+            ).join('\r\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            link.href = url;
+            link.download = `okr_tasks_${dateStr}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        };
+
+        if (useServer) {
+            fetch('/api/data').then(r => r.json()).then(d => {
+                cachedData = (Array.isArray(d) && d.length > 0) ? d : null;
+            }).catch(() => {}).finally(startApp);
+        } else {
+            startApp();
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+[
+  {
+    "id": "o1",
+    "title": "O1: AI 成为 Olive 各核心经营链路的默认操作系统",
+    "tasks": [
+      {
+        "id": "t1_1",
+        "name": "产品链路AI化嵌入",
+        "kr": "KR1",
+        "valueOptions": [
+          "核心供应商产品数据直连新增+50%",
+          "产品链路AI参与率≥50%"
+        ],
+        "subTasks": [
+          {
+            "id": "sub_1773107668587_1",
+            "name": "供应商数据直连",
+            "value": "核心供应商产品数据直连新增+50%",
+            "valueRemark": "",
+            "remark": "完成API开发",
+            "person": "张三",
+            "quarters": [
+              "Q1",
+              "Q2",
+              "Q3",
+              "Q4"
+            ],
+            "status": "进行中"
+          },
+          {
+            "id": "sub_1773107668587_2",
+            "name": "产品尽调/立项材料准备AI化- FastTrack",
+            "value": "产品链路AI参与率≥50%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "红花",
+            "quarters": [
+              "Q1"
+            ],
+            "status": "已完成"
+          },
+          {
+            "id": "sub_1773107668587_3",
+            "name": "产品尽调/立项材料准备AI化- 信贷/基建/股权",
+            "value": "产品链路AI参与率≥50%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q1",
+              "Q2"
+            ],
+            "status": "进行中"
+          },
+          {
+            "id": "sub_1773107668587_4",
+            "name": "产品材料审核-风控、合规 - FastTrack、常规项目",
+            "value": "产品链路AI参与率≥50%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "红花",
+            "quarters": [
+              "Q2"
+            ],
+            "status": "进行中"
+          },
+          {
+            "id": "sub_1773107668587_5",
+            "name": "上线材料制作AI化 - 投资指南：半流动性",
+            "value": "产品链路AI参与率≥50%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "红花",
+            "quarters": [
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773107668587_6",
+            "name": "产品筛选AI化 - 私募类资讯分析",
+            "value": "产品链路AI参与率≥50%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "红花",
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773112825370",
+            "name": "新子任务",
+            "value": "核心供应商产品数据直连新增+50%",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [],
+            "status": "待办"
+          }
+        ]
+      },
+      {
+        "id": "t1_2",
+        "name": "增长链路AI化嵌入",
+        "kr": "KR2",
+        "valueOptions": [
+          "下单客户数，复购率，客单价稳步提升"
+        ],
+        "subTasks": [
+          {
+            "id": "sub_1773107668587_7",
+            "name": "KYC及配置建议AI化",
+            "value": "下单客户数，复购率，客单价稳步提升",
+            "valueRemark": "",
+            "remark": "",
+            "person": "李四",
+            "quarters": [
+              "Q2"
+            ],
+            "status": "待办"
+          }
+        ]
+      },
+      {
+        "id": "t1_3",
+        "name": "运作及合规链路AI嵌入",
+        "kr": "KR3",
+        "valueOptions": [
+          "跨区产品/投委/资源决策100% AI摘要留痕"
+        ],
+        "subTasks": [
+          {
+            "id": "sub_1773107668587_8",
+            "name": "决策100% AI摘要留痕",
+            "value": "跨区产品/投委/资源决策100% AI摘要留痕",
+            "valueRemark": "",
+            "remark": "",
+            "person": "王五",
+            "quarters": [
+              "Q2"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773107668587_9",
+            "name": "投管 拆解",
+            "value": "跨区产品/投委/资源决策100% AI摘要留痕",
+            "valueRemark": "",
+            "remark": "",
+            "person": "思敏",
+            "quarters": [],
+            "status": "待办"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "o2",
+    "title": "O2: AI 作为组织“统一专业大脑”",
+    "tasks": [
+      {
+        "id": "t2_1",
+        "name": "各项专家能力AI化",
+        "kr": "KR1",
+        "valueOptions": [
+          "Olive产品专家AI Agent上线"
+        ],
+        "subTasks": [
+          {
+            "id": "sub_1773107668587_10",
+            "name": "产品Agent-货架产品问答（产品信息/业绩/Terms）",
+            "value": "Olive产品专家AI Agent上线",
+            "valueRemark": "",
+            "remark": "",
+            "person": "红花、嘉琦",
+            "quarters": [
+              "Q1"
+            ],
+            "status": "进行中"
+          },
+          {
+            "id": "sub_1773107668587_12",
+            "name": "产品Agent - 产品策略配置/投教",
+            "value": "Olive产品专家AI Agent上线",
+            "valueRemark": "",
+            "remark": "",
+            "person": "红花、嘉琦",
+            "quarters": [
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773107668587_13",
+            "name": "产品Agent - 一级存续监控（PPM变更、业绩异常、市场环境）",
+            "value": "Olive产品专家AI Agent上线",
+            "valueRemark": "",
+            "remark": "",
+            "person": "思敏",
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
+            "status": "待办"
+          },
+          {
+            "id": "sub_1773107668587_14",
+            "name": "产品Agent - 二级存续监控 （PPM变更、业绩异常、市场环境）",
+            "value": "Olive产品专家AI Agent上线",
+            "valueRemark": "",
+            "remark": "",
+            "person": "小倩",
+            "quarters": [
+              "Q2",
+              "Q3"
+            ],
+            "status": "待办"
+          }
+        ]
+      },
+      {
+        "id": "t2_2",
+        "name": "统一语言输出",
+        "kr": "KR2",
+        "valueOptions": [
+          "对客户、对内部、对管理层的产品/配置/风险表述以AI输出为统一底稿"
+        ],
+        "subTasks": [
+          {
+            "id": "sub_1773107668587_15",
+            "name": "新子任务",
+            "value": "对客户、对内部、对管理层的产品/配置/风险表述以AI输出为统一底稿",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [],
+            "status": "待办"
+          }
+        ]
+      },
+      {
+        "id": "t2_3",
+        "name": "AI化专家能力平台化输出",
+        "kr": "KR3",
+        "valueOptions": [
+          "赋能渠道侧(线上财管/Nexus等),Olive海投产品货架及产品询价(供应商直连）能力全面对接渠道"
+        ],
+        "subTasks": [
+          {
+            "id": "sub_1773107668587_16",
+            "name": "产品Agent-平台化对接",
+            "value": "赋能渠道侧(线上财管/Nexus等),Olive海投产品货架及产品询价(供应商直连）能力全面对接渠道",
+            "valueRemark": "",
+            "remark": "",
+            "person": "待分配",
+            "quarters": [
+              "Q2",
+              "Q3",
+              "Q4"
+            ],
+            "status": "待办"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "name": "okr-kanban",
+  "version": "1.0.0",
+  "description": "OKR 看板 + 简约 JSON 数据库",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "serve": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
