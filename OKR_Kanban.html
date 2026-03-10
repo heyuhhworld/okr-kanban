@@ -127,11 +127,48 @@
 
         function mergeWithInitial(data) {
             const list = Array.isArray(data) ? data.slice() : [];
-            initialData.forEach(obj => {
-                if (!list.find(o => (o.id && o.id === obj.id) || o.title === obj.title)) {
-                    list.push(obj);
+
+            const findObj = (seedObj) =>
+                list.find(o => (o && seedObj && o.id && seedObj.id && o.id === seedObj.id) || (o && seedObj && o.title === seedObj.title));
+
+            const findTask = (obj, seedTask) => {
+                if (!obj || !Array.isArray(obj.tasks)) return null;
+                return obj.tasks.find(t =>
+                    (t && seedTask && t.id && seedTask.id && t.id === seedTask.id) ||
+                    (t && seedTask && t.name === seedTask.name)
+                ) || null;
+            };
+
+            const ensureArray = (v) => Array.isArray(v) ? v : [];
+
+            initialData.forEach(seedObj => {
+                const existingObj = findObj(seedObj);
+                if (!existingObj) {
+                    list.push(seedObj);
+                    return;
                 }
+
+                existingObj.tasks = ensureArray(existingObj.tasks);
+                ensureArray(seedObj.tasks).forEach(seedTask => {
+                    const existingTask = findTask(existingObj, seedTask);
+                    if (!existingTask) {
+                        existingObj.tasks.push(seedTask);
+                        return;
+                    }
+
+                    // 合并 KR 文本 & 交付选项：服务器数据优先，但确保包含 initialData 的全量选项
+                    existingTask.kr = existingTask.kr || seedTask.kr;
+                    existingTask.valueOptions = ensureArray(existingTask.valueOptions);
+                    ensureArray(seedTask.valueOptions).forEach(v => {
+                        if (v && !existingTask.valueOptions.includes(v)) existingTask.valueOptions.push(v);
+                    });
+                    // 同时把已有子任务里用到的 value 也补到 options 中，避免下拉缺项
+                    ensureArray(existingTask.subTasks).forEach(st => {
+                        if (st && st.value && !existingTask.valueOptions.includes(st.value)) existingTask.valueOptions.push(st.value);
+                    });
+                });
             });
+
             return list;
         }
 
