@@ -116,7 +116,7 @@ function readTrack() {
 }
 
 function writeTrack(rows) {
-  const header = ['序号', '主阶段', '节点', '优先级', '输出智能体', '输出技能'];
+  const header = ['序号', '主阶段', '节点', '产品条线', '状态', '优先级', '输出智能体', '输出技能'];
   try {
     fs.mkdirSync(path.dirname(TRACK_FILE), { recursive: true });
 
