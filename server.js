@@ -100,15 +100,46 @@ function readTrack() {
     const raw = fs.readFileSync(TRACK_FILE, 'utf8');
     const rows = parseCSV(raw);
     if (!rows.length) return [];
-    const header = rows[0].map((h) => (h || '').trim());
+    const fileHeader = rows[0].map((h) => (h || '').trim());
     const result = [];
     for (let r = 1; r < rows.length; r++) {
       const row = rows[r];
       const obj = {};
-      for (let c = 0; c < header.length; c++) obj[header[c]] = row[c] ?? '';
+      for (let c = 0; c < fileHeader.length; c++) obj[fileHeader[c]] = row[c] ?? '';
       result.push(obj);
     }
-    return result;
+    // 兼容旧表头：始终返回标准字段集合
+    const header = ['序号', '主阶段序号', '主阶段', '节点', '产品条线', '状态', '优先级', '输出智能体', '输出技能'];
+    const stageNo = new Map();
+    let nextStageNo = 1;
+    result.forEach((r) => {
+      const stage = (r['主阶段'] || '').trim();
+      const no = (r['主阶段序号'] || '').trim();
+      if (stage && no && !stageNo.has(stage)) stageNo.set(stage, no);
+    });
+    const out = result
+      .map((r) => {
+        const o = {};
+        header.forEach((h) => (o[h] = (r[h] != null ? String(r[h]) : '').trim()));
+        const stage = o['主阶段'];
+        if (stage) {
+          if (!o['主阶段序号']) {
+            if (stageNo.has(stage)) o['主阶段序号'] = stageNo.get(stage);
+            else {
+              stageNo.set(stage, String(nextStageNo));
+              o['主阶段序号'] = String(nextStageNo);
+              nextStageNo += 1;
+            }
+          }
+        }
+        // 状态默认待办（与 OKR 一致）
+        if (!o['状态']) o['状态'] = '待办';
+        return o;
+      })
+      .filter((r) => Object.values(r).some((v) => v !== ''));
+    // 重排序号
+    out.forEach((r, idx) => (r['序号'] = String(idx + 1)));
+    return out;
   } catch (e) {
     console.error('readTrack error', e.message);
     return [];
@@ -116,7 +147,7 @@ function readTrack() {
 }
 
 function writeTrack(rows) {
-  const header = ['序号', '主阶段', '节点', '产品条线', '状态', '优先级', '输出智能体', '输出技能'];
+  const header = ['序号', '主阶段序号', '主阶段', '节点', '产品条线', '状态', '优先级', '输出智能体', '输出技能'];
   try {
     fs.mkdirSync(path.dirname(TRACK_FILE), { recursive: true });
 
@@ -127,6 +158,28 @@ function writeTrack(rows) {
         return obj;
       })
       .filter((r) => Object.values(r).some((v) => v !== '')); // 至少一列非空
+
+    // 补齐主阶段序号：按出现顺序生成
+    const stageNo = new Map();
+    let nextStageNo = 1;
+    cleaned.forEach((r) => {
+      const stage = r['主阶段'];
+      if (!stage) return;
+      const no = r['主阶段序号'];
+      if (no && !stageNo.has(stage)) stageNo.set(stage, no);
+    });
+    cleaned.forEach((r) => {
+      const stage = r['主阶段'];
+      if (!stage) return;
+      if (stageNo.has(stage)) {
+        r['主阶段序号'] = stageNo.get(stage);
+        return;
+      }
+      while ([...stageNo.values()].includes(String(nextStageNo))) nextStageNo += 1;
+      stageNo.set(stage, String(nextStageNo));
+      r['主阶段序号'] = String(nextStageNo);
+      nextStageNo += 1;
+    });
 
     // 重新编号 1..N
     cleaned.forEach((r, idx) => (r['序号'] = String(idx + 1)));

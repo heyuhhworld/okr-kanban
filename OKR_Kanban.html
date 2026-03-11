@@ -625,6 +625,7 @@
         // -------- Track (阶段) 页签 --------
         const trackColumns = [
             { key: '序号', label: '序号', editable: false },
+            { key: '主阶段序号', label: '主阶段序号', editable: false },
             { key: '主阶段', label: '主阶段', editable: true },
             { key: '节点', label: '节点', editable: true },
             { key: '产品条线', label: '产品条线', editable: true },
@@ -660,10 +661,17 @@
         }
 
         function saveTrackAll() {
+            // 只提交业务字段，去掉 __editing / __backup，确保 状态 等被正确写入
+            const headerKeys = trackColumns.map(c => c.key);
+            const payload = trackRows.map(r => {
+                const plain = {};
+                headerKeys.forEach(k => { plain[k] = (r[k] != null && !String(k).startsWith('__')) ? String(r[k]).trim() : (r[k] || ''); });
+                return plain;
+            });
             return fetch('/api/track', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(trackRows)
+                body: JSON.stringify(payload)
             }).then(r => r.json()).then(res => {
                 if (!res || !res.ok) throw new Error('save_failed');
                 if (Array.isArray(res.rows)) trackRows = res.rows;
@@ -820,18 +828,19 @@
             const row = trackRows[idx];
             if (!row) return;
 
-            // 从 DOM 回填数据
-            trackColumns.forEach(c => {
+            // 按列顺序从 DOM 回填（用 cells 索引避免 data-col 取不到）
+            trackColumns.forEach((c, colIndex) => {
                 if (!c.editable) return;
+                const cell = tr.cells[colIndex];
+                if (!cell) return;
                 if (c.type === 'priority') {
-                    const sel = tr.querySelector(`select[data-col="${c.key}"]`);
+                    const sel = cell.querySelector('select');
                     row[c.key] = sel ? sel.value : '';
                 } else if (c.type === 'status') {
-                    const sel = tr.querySelector(`select[data-col="${c.key}"]`);
+                    const sel = cell.querySelector('select');
                     row[c.key] = sel ? sel.value : '待办';
                 } else {
-                    const td = tr.querySelector(`td[data-col="${c.key}"]`);
-                    row[c.key] = td ? td.innerText.trim() : '';
+                    row[c.key] = (cell.innerText || '').trim();
                 }
             });
             row.__editing = false;
@@ -848,8 +857,40 @@
         };
 
         function addTrackRow() {
-            const nextNo = trackRows.length + 1;
-            trackRows.push({ '序号': String(nextNo), '主阶段': '', '节点': '', '优先级': '', '输出智能体': '', '输出技能': '', __editing: true, __backup: null });
+            const stages = Array.from(new Set((trackRows || []).map(r => (r['主阶段'] || '').trim()).filter(Boolean)));
+            const stage = prompt(`请输入/选择主阶段（将把新增记录插入到该主阶段下方）：\n\n${stages.join('\n')}`, stages[0] || '');
+            if (stage === null) return;
+            const stageTrim = stage.trim();
+            if (!stageTrim) return;
+
+            const stageNoFromExisting = (trackRows || []).find(r => (r['主阶段'] || '').trim() === stageTrim && String(r['主阶段序号'] || '').trim());
+            let stageNo = stageNoFromExisting ? String(stageNoFromExisting['主阶段序号']).trim() : '';
+            if (!stageNo) {
+                const nums = (trackRows || [])
+                    .map(r => parseInt(String(r['主阶段序号'] || '').trim(), 10))
+                    .filter(n => Number.isFinite(n));
+                stageNo = String((nums.length ? Math.max(...nums) : 0) + 1);
+            }
+
+            let insertAt = trackRows.length;
+            for (let i = trackRows.length - 1; i >= 0; i--) {
+                if (((trackRows[i]['主阶段'] || '').trim()) === stageTrim) { insertAt = i + 1; break; }
+            }
+
+            const newRow = {
+                '序号': '',
+                '主阶段序号': stageNo,
+                '主阶段': stageTrim,
+                '节点': '',
+                '产品条线': '',
+                '状态': '待办',
+                '优先级': '',
+                '输出智能体': '',
+                '输出技能': '',
+                __editing: true,
+                __backup: null
+            };
+            trackRows.splice(insertAt, 0, newRow);
             renderTrack();
         }
 
