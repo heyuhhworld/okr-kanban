@@ -11,7 +11,7 @@
         h1, h2 { color: #172b4d; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
         h1 { text-align: center; font-size: 2em; }
         h2 { font-size: 1.5em; margin-top: 40px; display: flex; justify-content: space-between; align-items: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; table-layout: fixed; }
         th, td { border: 1px solid #dfe1e6; padding: 8px; text-align: left; vertical-align: middle; }
         th { background-color: #fafbfc; font-weight: 600; color: #5e6c84; }
         .task-group-header { background-color: #f0f2f5; font-weight: bold; }
@@ -33,6 +33,17 @@
         .table-filters label { margin-right: 4px; }
         .table-filters select { padding: 4px 8px; border-radius: 4px; border: 1px solid #d1d5db; background: #fff; color: #111827; }
         .value-remark { margin-top: 4px; font-size: 12px; color: #4b5563; min-height: 18px; }
+        td select { width: 100%; box-sizing: border-box; }
+        .tabs { display: flex; gap: 8px; margin: 0 auto 16px; max-width: 95%; }
+        .tab { padding: 10px 14px; border-radius: 8px; background: #ffffff; border: 1px solid #e5e7eb; cursor: pointer; color: #374151; font-weight: 600; }
+        .tab.active { background: #2563eb; border-color: #2563eb; color: #ffffff; }
+        .hidden { display: none !important; }
+        .track-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .track-hint { font-size: 13px; color: #6b7280; }
+        .track-table td, .track-table th { font-size: 13px; }
+        .track-actions { white-space: nowrap; }
+        .btn-danger { background-color: #ef4444; }
+        .btn-danger:hover { background-color: #dc2626; }
         /* Gantt Status Colors */
         .gantt .bar-wrapper.status-todo .bar { fill: #b8c2cc; } /* 灰色 for 待办 */
         .gantt .bar-wrapper.status-inprogress .bar { fill: #5bc0de; } /* 蓝色 for 进行中 */
@@ -43,12 +54,17 @@
     </style>
 </head>
 <body>
+    <div class="tabs">
+        <button id="tab-okr" class="tab active">OKR 看板</button>
+        <button id="tab-track" class="tab">阶段 Track</button>
+    </div>
     <div id="dashboard-container" class="container"></div>
     <div id="gantt-container" class="container">
         <h2>甘特图视图</h2>
         <div id="gantt-filter"><label for="person-filter">按跟进人筛选:</label><select id="person-filter"></select></div>
         <svg id="gantt"></svg>
     </div>
+    <div id="track-container" class="container hidden"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.js"></script>
     <script>
@@ -61,6 +77,9 @@
         const useServer = (window.location.protocol === 'http:' || window.location.protocol === 'https:');
         let cachedData = null;
         let initialLoadDone = false;
+        let currentTab = 'okr';
+        let trackRows = [];
+        let trackLoading = false;
 
         const initialData = [
             {
@@ -123,7 +142,26 @@
             }
             render();
         }
-        function render() { const data = loadData(); renderTable(data); renderGantt(data); updatePersonFilter(data); }
+        function setTab(tab) {
+            currentTab = tab;
+            document.getElementById('tab-okr').classList.toggle('active', tab === 'okr');
+            document.getElementById('tab-track').classList.toggle('active', tab === 'track');
+            document.getElementById('dashboard-container').classList.toggle('hidden', tab !== 'okr');
+            document.getElementById('gantt-container').classList.toggle('hidden', tab !== 'okr');
+            document.getElementById('track-container').classList.toggle('hidden', tab !== 'track');
+            render();
+        }
+
+        function render() {
+            if (currentTab === 'track') {
+                renderTrack();
+                return;
+            }
+            const data = loadData();
+            renderTable(data);
+            renderGantt(data);
+            updatePersonFilter(data);
+        }
 
         function mergeWithInitial(data) {
             const list = Array.isArray(data) ? data.slice() : [];
@@ -579,6 +617,207 @@
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
         };
+
+        // -------- Track (阶段) 页签 --------
+        const trackColumns = [
+            { key: '序号', label: '序号', editable: false },
+            { key: '主阶段', label: '主阶段', editable: true },
+            { key: '节点', label: '节点', editable: true },
+            { key: '优先级', label: '优先级', editable: true, type: 'priority' },
+            { key: '输出智能体', label: '输出智能体', editable: true },
+            { key: '输出技能', label: '输出技能', editable: true }
+        ];
+
+        function ensureTrackAccess() {
+            if (!useServer) {
+                const container = document.getElementById('track-container');
+                container.innerHTML = `<h2>阶段 Track</h2><p class="track-hint">Track 需要通过服务端访问（http://...）才能多人共享与保存。</p>`;
+                return false;
+            }
+            return true;
+        }
+
+        function fetchTrack() {
+            if (trackLoading) return Promise.resolve(trackRows);
+            trackLoading = true;
+            return fetch('/api/track')
+                .then(r => r.json())
+                .then(rows => {
+                    trackRows = Array.isArray(rows) ? rows : [];
+                    return trackRows;
+                })
+                .catch(() => {
+                    alert('拉取 Track 失败');
+                    return trackRows;
+                })
+                .finally(() => { trackLoading = false; });
+        }
+
+        function saveTrackAll() {
+            return fetch('/api/track', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(trackRows)
+            }).then(r => r.json()).then(res => {
+                if (!res || !res.ok) throw new Error('save_failed');
+                if (Array.isArray(res.rows)) trackRows = res.rows;
+                return true;
+            }).catch(() => {
+                alert('保存 Track 失败，请重试');
+                return false;
+            });
+        }
+
+        function renderTrack() {
+            if (!ensureTrackAccess()) return;
+            const container = document.getElementById('track-container');
+            container.innerHTML = `
+                <div class="track-toolbar">
+                    <h2 style="margin:0; border-bottom:none; padding-bottom:0">阶段 Track</h2>
+                    <div>
+                        <button id="track-add" class="btn btn-add-subtask">+ 新增</button>
+                        <button id="track-export" class="btn btn-export">导出 Track</button>
+                    </div>
+                </div>
+                <div class="track-hint">每行独立「编辑/保存」。多人同时编辑时，建议保存后点一次「从服务器刷新」再继续。</div>
+                <div id="track-table-wrap"></div>
+            `;
+
+            fetchTrack().then(() => {
+                const wrap = document.getElementById('track-table-wrap');
+                wrap.innerHTML = buildTrackTableHTML(trackRows);
+                document.getElementById('track-add').onclick = () => addTrackRow();
+                document.getElementById('track-export').onclick = () => exportTrackCSV();
+            });
+        }
+
+        function buildTrackTableHTML(rows) {
+            const thead = `<tr>${trackColumns.map(c => `<th>${c.label}</th>`).join('')}<th style="width:140px">操作</th></tr>`;
+            const tbody = rows.map((r, idx) => {
+                const editing = !!r.__editing;
+                const tds = trackColumns.map(c => {
+                    if (c.type === 'priority') {
+                        const val = (r[c.key] || '').trim();
+                        const disabled = editing ? '' : 'disabled';
+                        return `<td>
+                            <select data-col="${c.key}" ${disabled}>
+                                <option value="" ${val===''?'selected':''}></option>
+                                <option value="P0" ${val==='P0'?'selected':''}>P0</option>
+                                <option value="P1" ${val==='P1'?'selected':''}>P1</option>
+                                <option value="P2" ${val==='P2'?'selected':''}>P2</option>
+                            </select>
+                        </td>`;
+                    }
+                    const val = (r[c.key] ?? '').toString();
+                    const editable = c.editable && editing;
+                    const ce = editable ? 'contenteditable="true"' : '';
+                    return `<td data-col="${c.key}" ${ce}>${escapeHTML(val)}</td>`;
+                }).join('');
+
+                const btns = editing
+                    ? `<button class="btn btn-edit" onclick="saveTrackRow(${idx})">保存</button>
+                       <button class="btn btn-danger" onclick="cancelTrackEdit(${idx})">取消</button>`
+                    : `<button class="btn btn-edit" onclick="editTrackRow(${idx})">编辑</button>
+                       <button class="btn btn-danger" onclick="deleteTrackRow(${idx})">删除</button>`;
+
+                return `<tr data-idx="${idx}">${tds}<td class="track-actions">${btns}</td></tr>`;
+            }).join('');
+
+            return `<table class="track-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+        }
+
+        function escapeHTML(s) {
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        window.editTrackRow = function(idx) {
+            const row = trackRows[idx];
+            if (!row) return;
+            row.__editing = true;
+            row.__backup = JSON.parse(JSON.stringify(row));
+            renderTrack();
+        };
+
+        window.cancelTrackEdit = function(idx) {
+            const row = trackRows[idx];
+            if (!row) return;
+            if (row.__backup) {
+                const keep = { __editing: false };
+                Object.keys(row).forEach(k => { if (!k.startsWith('__')) delete row[k]; });
+                Object.assign(row, row.__backup);
+                row.__editing = false;
+                delete row.__backup;
+            } else {
+                row.__editing = false;
+            }
+            renderTrack();
+        };
+
+        window.saveTrackRow = function(idx) {
+            const tr = document.querySelector(`#track-table-wrap tr[data-idx="${idx}"]`);
+            if (!tr) return;
+            const row = trackRows[idx];
+            if (!row) return;
+
+            // 从 DOM 回填数据
+            trackColumns.forEach(c => {
+                if (!c.editable) return;
+                if (c.type === 'priority') {
+                    const sel = tr.querySelector(`select[data-col="${c.key}"]`);
+                    row[c.key] = sel ? sel.value : '';
+                } else {
+                    const td = tr.querySelector(`td[data-col="${c.key}"]`);
+                    row[c.key] = td ? td.innerText.trim() : '';
+                }
+            });
+            row.__editing = false;
+            delete row.__backup;
+
+            // 保存整表（简约后端）
+            saveTrackAll().then(() => renderTrack());
+        };
+
+        window.deleteTrackRow = function(idx) {
+            if (!confirm('确定删除这一行阶段节点吗？')) return;
+            trackRows.splice(idx, 1);
+            saveTrackAll().then(() => renderTrack());
+        };
+
+        function addTrackRow() {
+            const nextNo = trackRows.length + 1;
+            trackRows.push({ '序号': String(nextNo), '主阶段': '', '节点': '', '优先级': '', '输出智能体': '', '输出技能': '', __editing: true, __backup: null });
+            renderTrack();
+        }
+
+        function exportTrackCSV() {
+            const rows = [];
+            rows.push(trackColumns.map(c => c.label));
+            trackRows.forEach(r => {
+                rows.push(trackColumns.map(c => (r[c.key] ?? '').toString().replace(/\r?\n/g, ' ')));
+            });
+            const csvContent = rows.map(row =>
+                row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(',')
+            ).join('\r\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            link.href = url;
+            link.download = `track_${dateStr}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('tab-okr').onclick = () => setTab('okr');
+        document.getElementById('tab-track').onclick = () => setTab('track');
 
         if (useServer) {
             fetch('/api/data').then(r => r.json()).then(d => {
