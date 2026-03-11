@@ -628,7 +628,7 @@
             { key: '主阶段', label: '主阶段', editable: true },
             { key: '节点', label: '节点', editable: true },
             { key: '产品条线', label: '产品条线', editable: true },
-            { key: '状态', label: '状态', editable: true },
+            { key: '状态', label: '状态', editable: true, type: 'status' },
             { key: '优先级', label: '优先级', editable: true, type: 'priority' },
             { key: '输出智能体', label: '输出智能体', editable: true },
             { key: '输出技能', label: '输出技能', editable: true }
@@ -710,10 +710,10 @@
 
             const nodeCount = list.length;
             const aiPlanningCount = list.filter(r => ['P0', 'P1'].includes(priority(r))).length;
-            const doneCount = list.filter(r => ['已完成', '完成', 'DONE', 'Done', 'done'].includes(status(r))).length;
+            const doneCount = list.filter(r => status(r) === '已完成').length;
             const pendingCount = list.filter(r => {
                 const s = status(r);
-                return s === '' || ['待规划', '待计划', '未规划', '未开始', '待办'].includes(s);
+                return s === '' || s === '待办';
             }).length;
 
             return `
@@ -750,6 +750,17 @@
                                 <option value="P0" ${val==='P0'?'selected':''}>P0</option>
                                 <option value="P1" ${val==='P1'?'selected':''}>P1</option>
                                 <option value="P2" ${val==='P2'?'selected':''}>P2</option>
+                            </select>
+                        </td>`;
+                    }
+                    if (c.type === 'status') {
+                        const val = (r[c.key] || '').trim();
+                        const disabled = editing ? '' : 'disabled';
+                        return `<td>
+                            <select data-col="${c.key}" ${disabled}>
+                                <option value="待办" ${val==='' || val==='待办' ? 'selected' : ''}>待办</option>
+                                <option value="进行中" ${val==='进行中' ? 'selected' : ''}>进行中</option>
+                                <option value="已完成" ${val==='已完成' ? 'selected' : ''}>已完成</option>
                             </select>
                         </td>`;
                     }
@@ -815,6 +826,9 @@
                 if (c.type === 'priority') {
                     const sel = tr.querySelector(`select[data-col="${c.key}"]`);
                     row[c.key] = sel ? sel.value : '';
+                } else if (c.type === 'status') {
+                    const sel = tr.querySelector(`select[data-col="${c.key}"]`);
+                    row[c.key] = sel ? sel.value : '待办';
                 } else {
                     const td = tr.querySelector(`td[data-col="${c.key}"]`);
                     row[c.key] = td ? td.innerText.trim() : '';
