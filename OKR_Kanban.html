@@ -682,13 +682,15 @@
                 <div class="track-hint">每行独立「编辑/保存」。多人同时编辑时，建议保存后点一次「从服务器刷新」再继续。</div>
                 <div id="track-table-wrap"></div>
             `;
-
-            fetchTrack().then(() => {
+            const renderTable = () => {
                 const wrap = document.getElementById('track-table-wrap');
                 wrap.innerHTML = buildTrackTableHTML(trackRows);
                 document.getElementById('track-add').onclick = () => addTrackRow();
                 document.getElementById('track-export').onclick = () => exportTrackCSV();
-            });
+            };
+            // 关键点：编辑/取消/保存时不要反复拉取服务器数据，否则会覆盖编辑态标记
+            if (trackRows.length === 0) fetchTrack().then(renderTable);
+            else renderTable();
         }
 
         function buildTrackTableHTML(rows) {
