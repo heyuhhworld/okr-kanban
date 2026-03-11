@@ -44,6 +44,10 @@
         .track-actions { white-space: nowrap; }
         .btn-danger { background-color: #ef4444; }
         .btn-danger:hover { background-color: #dc2626; }
+        .track-summary-cards { display: flex; gap: 14px; flex-wrap: wrap; margin: 8px 0 14px; }
+        .track-summary-card { min-width: 180px; padding: 16px 18px; border-radius: 10px; color: #fff; background: linear-gradient(135deg, #6d5dfc 0%, #8b5cf6 45%, #7c3aed 100%); box-shadow: 0 8px 20px rgba(76, 29, 149, 0.25); }
+        .track-summary-card-value { font-size: 30px; font-weight: 800; line-height: 1.1; }
+        .track-summary-card-title { margin-top: 6px; font-size: 12px; opacity: 0.9; font-weight: 600; letter-spacing: 0.2px; }
         /* Gantt Status Colors */
         .gantt .bar-wrapper.status-todo .bar { fill: #b8c2cc; } /* 灰色 for 待办 */
         .gantt .bar-wrapper.status-inprogress .bar { fill: #5bc0de; } /* 蓝色 for 进行中 */
@@ -681,10 +685,13 @@
                         <button id="track-export" class="btn btn-export">导出 Track</button>
                     </div>
                 </div>
+                <div id="track-summary" class="track-summary-cards"></div>
                 <div class="track-hint">每行独立「编辑/保存」。多人同时编辑时，建议保存后点一次「从服务器刷新」再继续。</div>
                 <div id="track-table-wrap"></div>
             `;
             const renderTable = () => {
+                const summary = document.getElementById('track-summary');
+                if (summary) summary.innerHTML = buildTrackSummaryHTML(trackRows);
                 const wrap = document.getElementById('track-table-wrap');
                 wrap.innerHTML = buildTrackTableHTML(trackRows);
                 document.getElementById('track-add').onclick = () => addTrackRow();
@@ -693,6 +700,40 @@
             // 关键点：编辑/取消/保存时不要反复拉取服务器数据，否则会覆盖编辑态标记
             if (trackRows.length === 0) fetchTrack().then(renderTable);
             else renderTable();
+        }
+
+        function buildTrackSummaryHTML(rows) {
+            const list = Array.isArray(rows) ? rows : [];
+            const norm = (v) => (v == null ? '' : String(v)).trim();
+            const status = (r) => norm(r['状态']);
+            const priority = (r) => norm(r['优先级']).toUpperCase();
+
+            const nodeCount = list.length;
+            const aiPlanningCount = list.filter(r => ['P0', 'P1'].includes(priority(r))).length;
+            const doneCount = list.filter(r => ['已完成', '完成', 'DONE', 'Done', 'done'].includes(status(r))).length;
+            const pendingCount = list.filter(r => {
+                const s = status(r);
+                return s === '' || ['待规划', '待计划', '未规划', '未开始', '待办'].includes(s);
+            }).length;
+
+            return `
+                <div class="track-summary-card">
+                    <div class="track-summary-card-value">${nodeCount}</div>
+                    <div class="track-summary-card-title">节点数</div>
+                </div>
+                <div class="track-summary-card">
+                    <div class="track-summary-card-value">${aiPlanningCount}</div>
+                    <div class="track-summary-card-title">AI规划中（P0/P1）</div>
+                </div>
+                <div class="track-summary-card">
+                    <div class="track-summary-card-value">${doneCount}</div>
+                    <div class="track-summary-card-title">已完成</div>
+                </div>
+                <div class="track-summary-card">
+                    <div class="track-summary-card-value">${pendingCount}</div>
+                    <div class="track-summary-card-title">待规划</div>
+                </div>
+            `;
         }
 
         function buildTrackTableHTML(rows) {
